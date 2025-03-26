@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radar Visualization Project Presentation</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .slide {
+            background: white;
+            margin: 20px auto;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 1000px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #3498db;
+            margin-top: 30px;
+        }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        code {
+            font-family: 'Consolas', monospace;
+        }
+        .architecture-diagram {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .component {
+            margin: 20px 0;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide">
+        <h1>Radar Visualization Project</h1>
+        <h2>Project Overview</h2>
+        <p>This project is a comprehensive radar visualization system that combines:</p>
+        <ul>
+            <li>Interactive map visualization</li>
+            <li>Radar coverage calculation</li>
+            <li>Terrain analysis</li>
+            <li>Real-time data processing</li>
+        </ul>
+    </div>
+
+    <div class="slide">
+        <h2>Technology Stack</h2>
+        <div class="component">
+            <h3>Frontend</h3>
+            <ul>
+                <li>Angular framework for robust UI components</li>
+                <li>Leaflet.js for interactive mapping</li>
+                <li>TypeScript for type-safe development</li>
+            </ul>
+        </div>
+        <div class="component">
+            <h3>Backend</h3>
+            <ul>
+                <li>Spring Boot for RESTful API services</li>
+                <li>PostGIS for spatial data management</li>
+                <li>Java for radar calculations</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="slide">
+        <h2>Project Architecture</h2>
+        <div class="architecture-diagram">
+            <pre>
+┌─────────────┐     ┌──────────────┐     ┌───────────────┐
+│   Angular   │     │  Spring Boot │     │    PostGIS    │
+│  Frontend   │ ←→  │   Backend    │ ←→  │   Database    │
+└─────────────┘     └──────────────┘     └───────────────┘
+</pre>
+        </div>
+        <p>The architecture follows a three-tier design pattern:</p>
+        <ul>
+            <li><strong>Presentation Layer:</strong> Angular-based UI components</li>
+            <li><strong>Business Layer:</strong> Spring Boot REST services</li>
+            <li><strong>Data Layer:</strong> PostGIS spatial database</li>
+        </ul>
+    </div>
+
+    <div class="slide">
+        <h2>Key Components</h2>
+        <div class="component">
+            <h3>1. Map Visualization</h3>
+            <p>The map component uses Leaflet.js to render:</p>
+            <ul>
+                <li>Base map layers</li>
+                <li>Radar coverage overlays</li>
+                <li>Interactive markers for radar positions</li>
+            </ul>
+            <pre><code>// Example of map initialization
+export class MapComponent implements OnInit {
+  private map: L.Map;
+
+  ngOnInit() {
+    this.map = L.map('map').setView([initial_lat, initial_lng], zoom_level);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.map);
+  }
+}</code></pre>
+        </div>
+    </div>
+
+    <div class="slide">
+        <h2>Radar Coverage Calculation</h2>
+        <div class="component">
+            <p>The radar coverage calculation involves several steps:</p>
+            <ol>
+                <li>Terrain elevation analysis</li>
+                <li>Line-of-sight calculations</li>
+                <li>Signal propagation modeling</li>
+            </ol>
+            <pre><code>// Example of radar coverage calculation
+@Service
+public class RadarCoverageService {
+    public Coverage calculateCoverage(RadarParameters params) {
+        // 1. Get terrain data
+        TerrainData terrain = terrainService.getTerrainData(params.getArea());
+        
+        // 2. Calculate line of sight
+        List<Point> visiblePoints = calculateLineOfSight(params, terrain);
+        
+        // 3. Apply signal propagation model
+        Coverage coverage = applyPropagationModel(visiblePoints, params);
+        
+        return coverage;
+    }
+}</code></pre>
+        </div>
+    </div>
+
+    <div class="slide">
+        <h2>Data Flow</h2>
+        <div class="component">
+            <p>The data flow in the application follows these steps:</p>
+            <ol>
+                <li>User inputs radar parameters through the UI</li>
+                <li>Frontend sends request to backend API</li>
+                <li>Backend processes the request:</li>
+                <ul>
+                    <li>Retrieves terrain data from PostGIS</li>
+                    <li>Calculates radar coverage</li>
+                    <li>Returns coverage data</li>
+                </ul>
+                <li>Frontend renders the coverage on the map</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="slide">
+        <h2>Key Features</h2>
+        <div class="component">
+            <h3>1. Real-time Updates</h3>
+            <pre><code>// Example of real-time updates
+@Component({
+  selector: 'app-radar-control',
+  template: `
+    <form (ngSubmit)="updateCoverage()">
+      <input [(ngModel)]="radarParams.range" name="range">
+      <input [(ngModel)]="radarParams.angle" name="angle">
+      <button type="submit">Update Coverage</button>
+    </form>
+  `
+})
+export class RadarControlComponent {
+  updateCoverage() {
+    this.radarService.calculateCoverage(this.radarParams)
+      .subscribe(coverage => this.mapService.updateCoverageLayer(coverage));
+  }
+}</code></pre>
+        </div>
+    </div>
+
+    <div class="slide">
+        <h2>Database Schema</h2>
+        <div class="component">
+            <p>The PostGIS database includes these key tables:</p>
+            <pre><code>-- Example database schema
+CREATE TABLE terrain_data (
+    id SERIAL PRIMARY KEY,
+    elevation NUMERIC,
+    geom GEOMETRY(POINT, 4326)
+);
+
+CREATE TABLE radar_locations (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255),
+    location GEOMETRY(POINT, 4326),
+    parameters JSONB
+);</code></pre>
+        </div>
+    </div>
+
+    <div class="slide">
+        <h2>Testing Strategy</h2>
+        <div class="component">
+            <p>The project implements comprehensive testing at multiple levels:</p>
+            <ul>
+                <li>Unit tests for individual components</li>
+                <li>Integration tests for API endpoints</li>
+                <li>End-to-end tests for user workflows</li>
+            </ul>
+            <pre><code>// Example of a unit test
+@Test
+public void testRadarCoverageCalculation() {
+    RadarParameters params = new RadarParameters(lat, lon, range, angle);
+    Coverage coverage = radarService.calculateCoverage(params);
+    
+    assertNotNull(coverage);
+    assertTrue(coverage.getPoints().size() > 0);
+    // Additional assertions
+}</code></pre>
+        </div>
+    </div>
+
+    <div class="slide">
+        <h2>Deployment Architecture</h2>
+        <div class="component">
+            <p>The application is deployed using:</p>
+            <ul>
+                <li>Docker containers for each component</li>
+                <li>Nginx as reverse proxy</li>
+                <li>AWS/Azure cloud infrastructure</li>
+            </ul>
+            <pre><code># Example Docker Compose configuration
+version: '3'
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+  backend:
+    build: ./backend
+    ports:
+      - "8080:8080"
+  database:
+    image: postgis/postgis
+    ports:
+      - "5432:5432"</code></pre>
+        </div>
+    </div>
+
+    <div class="slide">
+        <h2>Future Enhancements</h2>
+        <div class="component">
+            <p>Planned improvements include:</p>
+            <ul>
+                <li>Advanced terrain analysis algorithms</li>
+                <li>3D visualization of radar coverage</li>
+                <li>Real-time weather data integration</li>
+                <li>Mobile app development</li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>
